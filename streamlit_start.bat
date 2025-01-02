@@ -1,0 +1,1 @@
+streamlit run teste_api.py
