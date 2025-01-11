@@ -17,3 +17,6 @@ df = yf.download('BTC-USD', start=start_date, end=end_date)
 
 
 print(df.head(20))
+# print(df.columns)
+
+# ['Close', 'High', 'Low', 'Open', 'Volume']
