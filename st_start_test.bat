@@ -1,1 +1,1 @@
-streamlit run teste_api.py
+streamlit run test_project.py
