@@ -1,0 +1,53 @@
+1- Criar uma Deshboard interativa usando o Streamlit e API do YFinance
+
+2- Implementar ML (Machine Learning) se possiel mais de um modelo
+
+3- Não esquecer de fazer o EDA (Exploratory Data Analysis) ou Análise Exploratória de Dados: 
+Pra não esquecer > É uma etapa fundamental em projetos de ciência de dados e Machine Learning. O objetivo do EDA é explorar o conjunto de dados para entender suas características principais, padrões, tendências e possíveis problemas, antes de criar modelos de aprendizado de máquina.
+
+4- Primeiro implementar a Dashboard depois fazer o EDA, porém na ducumentação o EDA deve vim Primeiro
+
+
+
+
+ChatGPT
+
+1. Dashboard Interativa com Streamlit e YFinance
+Ideias adicionais:
+Ofereça opções de filtros avançados, como selecionar intervalos de datas ou tipos específicos de ações (por setor, mercado ou país).
+Inclua gráficos interativos de séries temporais com anotações importantes (ex.: eventos financeiros, splits de ações).
+Adicione métricas personalizadas, como médias móveis ou volatilidade histórica.
+Possibilite exportar gráficos ou dados para Excel ou CSV diretamente da dashboard.
+2. Implementar Machine Learning
+Idéias adicionais:
+Experimente diferentes modelos:
+Regressão Linear: para prever preços futuros com base em dados históricos.
+Árvores de Decisão: para classificar ações como "compra", "venda" ou "manter".
+Clustering (K-Means): para identificar padrões e agrupamentos de ações semelhantes.
+Treine um modelo para prever volatilidade ou retorno esperado.
+Teste aprendizado não supervisionado para identificar anomalias ou eventos fora do padrão no histórico de ações.
+Inclua um módulo de explicabilidade do modelo, como gráficos de importância de características (SHAP ou LIME).
+3. Exploração de Dados (EDA)
+Idéias adicionais:
+Explore:
+Correlações entre variáveis (ex.: volume vs. preço).
+Análise de sazonalidade (variação de preços por períodos, como meses ou anos).
+Identificação de outliers que podem impactar os modelos de Machine Learning.
+Use visualizações impactantes:
+Heatmaps para matrizes de correlação.
+Gráficos de dispersão coloridos por setores ou mercados.
+Boxplots para identificar a dispersão dos preços e volumes.
+Inclua análises estatísticas descritivas (média, mediana, variância) no relatório.
+4. Ordem das Etapas
+Embora o EDA seja, de fato, realizado antes do Machine Learning na prática, pode ser interessante:
+Implementar uma funcionalidade na dashboard para realizar EDA interativamente. O usuário poderia explorar os dados diretamente na interface antes de treinar modelos ou tomar decisões.
+Divida a documentação em partes: apresente o EDA como uma seção inicial, seguido pelo desenvolvimento da dashboard e Machine Learning, alinhando-se com boas práticas de apresentação de projetos.
+5. Ideias Adicionais
+Previsão em tempo real: Use a API do YFinance para atualizar os dados automaticamente a cada hora/dia e treinar modelos incrementais.
+Análise de Sentimento:
+Integre dados externos, como notícias ou tweets, para avaliar o impacto de eventos externos no mercado.
+Use técnicas de Processamento de Linguagem Natural (NLP) para gerar insights.
+Automatização:
+Configure alertas automáticos para avisar os usuários sobre eventos significativos, como rupturas de médias móveis ou aumentos súbitos no volume.
+Educação:
+Adicione tutoriais básicos na dashboard para ajudar usuários iniciantes a entender os gráficos e métricas apresentadas.
