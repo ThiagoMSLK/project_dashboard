@@ -12,11 +12,27 @@ import streamlit as st
 start_date = dt.datetime(2022, 1, 1)
 end_date = dt.datetime.today()
 
+# 1.4 Difinição do Ticker
+ticker = 'IVVB11.SA'
+
+# 1.5 Teste historico
+# ativo = yf.Ticker(ticker)
+# historico = ativo.history(period="max")
+# primeiro_dia = historico.index[0].date()
+
+# print(primeiro_dia)
+
 # 2. Retornar as informações da API
-df = yf.download('BTC-USD', start=start_date, end=end_date)
+df = yf.download(ticker, start=None, end=end_date)
 
 
 print(df.head(20))
+
+# print(df['Close'].head(1))
+
+# print(df.index[0].date())
+
 # print(df.columns)
 
-# ['Close', 'High', 'Low', 'Open', 'Volume']
+
+# df.history(period='1d')
