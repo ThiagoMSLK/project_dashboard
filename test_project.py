@@ -5,9 +5,11 @@ import datetime as dt
 # 1.2 Importação das bibliotecas externas
 import pandas as pd
 import yfinance as yf
+import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
-import streamlit as st
+import plotly.express as px
+
 
 # 1.3 Difinição da Tuples OHLCV e do DataFrame Ticker
 OHLCV = ("Open", "High", "Low", "Close", "Volume")
@@ -28,17 +30,22 @@ with st.container():
     
     # 1.4 Difinição do Ticker
     with box1:
-
+        # 1.4.1 Colocando o o titulo
         with st.container():
             st.write("Escolha o ativo que deseja visualizar")
             
+            # 1.4.2 Tamanho das box
             col1, col2 =st.columns([1,1])
             
+            # 1.4.3 Seleção do ativo
             with col1:
                 ticker_selecionado = st.selectbox("Selecione ou >", options= ticker)
+            
+            # 1.4.4 Digitar o ativo
             with col2:
                 ticker_digitado = st.text_input("Digite")
 
+            # 1.4.5 Garantir que o ativo digitado tenha preferência sobre o selecionado
             if ticker_digitado:
                 selecao_ticker = ticker_digitado.upper()
             else:
@@ -52,15 +59,21 @@ with st.container():
         
     # 1.6 Difinição do começo e fim da busca
     with box3:
+        # 1.6.1 Colocando o o titulo, mas o princial objetivo é alinhar com as box
+        with st.container():
+            st.write("Escolha o intervalo de datas:")
 
-        # 1.6.1 Procurando o primeiro dia do ativo
+        # 1.6.2 Procurando o primeiro dia do ativo
+            # Mais explicativo
         ativo = yf.Ticker(selecao_ticker)
         historico = ativo.history(period="max")
         primeiro_dia = historico.index[0].date()
+            # Mais simples e direto
+        # primeiro_dia = yf.Ticker(selecao_ticker).history(period="max").index[0].date()
 
-        # 1.6.2 Escolha do intervalo de datas
+        # 1.6.3 Escolha do intervalo de datas e deixando o label vazio para alinhar com as box
         start_date, end_date = st.slider(
-    "Escolha o intervalo de datas:",
+    "",
     min_value=None,
     max_value=dt.date.today(),
     value=(primeiro_dia, dt.date.today()),
@@ -91,15 +104,19 @@ with st.container():
     with box3:
         st.metric("Menor cotação:",f"US$ {menor_cotacao}")
 
-
 # 2.3 Visualização dos dados
 st.write(f"## Dados do Ativo {selecao_ticker}")
 
 # 2.4 Visualização do gráfico
-st.area_chart(df[selecao_ohlcv])
-
-# st.write_stream(sns.pairplot(df))
+st.area_chart(df[selecao_ohlcv].astype(float))
 
 # 2.5 Visualização do DataFrame
-st.write(f"## Dados do {selecao_ticker}")
-st.write(df)
+with st.container():
+    box1, box2 = st.columns([1,1])
+    with box1:
+        st.write(f"## Dados do {selecao_ticker}\n")
+        st.write(df)
+    with box2:
+        st.write(f"## Informaões dos Dados do {selecao_ticker}")
+        st.write(df.describe())
+        st.write(df.info())
