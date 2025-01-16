@@ -1,0 +1,21 @@
+Usando venv (embutido no Python)
+O venv cria um ambiente virtual para o projeto.
+
+Passos:
+
+1 - Navegue até o diretório do seu projeto no terminal:
+cd caminho/para/seu/projeto
+
+2 - Crie o ambiente virtual:
+python -m venv env
+
+3 - Ative o ambiente virtual:
+.\env\Scripts\activate
+
+4 - Instale as bibliotecas necessárias:
+pip install biblioteca1 biblioteca2 ...
+
+5 - Salve as dependências em um arquivo requirements.txt:
+pip freeze > requirements.txt
+
+Para usar o ambiente novamente, ative-o como no passo 3.
