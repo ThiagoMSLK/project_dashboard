@@ -7,12 +7,14 @@ ticker = "PETR4.SA"
 
 ativo = yf.Ticker(ticker).history(period="max", auto_adjust=False)
 
-moeda = yf.Ticker(ticker).info["currency"]
+# ativo = yf.download(ticker, period="max")
+
+# moeda = yf.Ticker(ticker).info["currency"]
 
 
 # sns.lineplot(data=ativo[["Open", "Close", "High", "Low"]].astype(float), palette="tab10")
 # plt.show()
 
-print(moeda)
+# print(moeda)
 
-# print(ativo.info())
+print(ativo.info())
