@@ -74,10 +74,12 @@ with st.container():
         primeiro_dia = df.index[0].date()
 
         # 1.6.5 Escolha do intervalo de datas e deixando o label vazio para alinhar com as box
-        start_date, end_date = st.slider("",min_value=None,
-        max_value=dt.date.today(),
-        value=(primeiro_dia, dt.date.today()),format="YYYY-MM-DD"
-)
+        start_date, end_date = st.slider(
+            "",min_value=None,
+            max_value=dt.date.today(),
+            value=(primeiro_dia, dt.date.today()),format="YYYY-MM-DD"
+            )
+        
         # 1.6.6 Filtrando o DataFrame para ser exibido no gráfico com a data escolhida
         start_date = pd.to_datetime(start_date)
         end_date = pd.to_datetime(end_date)

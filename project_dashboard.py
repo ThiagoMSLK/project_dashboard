@@ -64,8 +64,9 @@ with st.container():
             st.write("Escolha o intervalo de datas:")
 
         # 1.6.2 Retornar as informações da API
+        
         df = yf.Ticker(selecao_ticker).history(period="max", auto_adjust=False)
-
+        df.index = pd.to_datetime(df.index.date)
         # 1.6.3 Procurando a moeda do ativo
         moeda = yf.Ticker(selecao_ticker).info["currency"]
 
@@ -74,12 +75,15 @@ with st.container():
 
         # 1.6.5 Escolha do intervalo de datas e deixando o label vazio para alinhar com as box
         start_date, end_date = st.slider(
-    "",
-    min_value=None,
-    max_value=dt.date.today(),
-    value=(primeiro_dia, dt.date.today()),
-    format="YYYY-MM-DD"
-)
+            "",min_value=None,
+            max_value=dt.date.today(),
+            value=(primeiro_dia, dt.date.today()),format="YYYY-MM-DD"
+            )
+        
+        # 1.6.6 Filtrando o DataFrame para ser exibido no gráfico com a data escolhida
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        df = df.loc[start_date:end_date]
 
 # 2.1 Metricas
 ult_atualizacao = df.index.max().date() # Data da última atualização
@@ -96,7 +100,8 @@ delta = round(((ult_cotacao - prim_cotacao)/prim_cotacao)*100, 2) # Variação p
 
 
 # 2.2 Visualização dos dados das metricas
-with st.container():
+with st.container(border=True):
+    st.write("## Métricas do Ativo")
     box1, box2, box3 = st.columns([1,1,1])
     with box1:
         st.metric(f"Última cotação: {ult_atualizacao}",f"{moeda} {ult_cotacao}",f"{delta}%")
@@ -114,7 +119,7 @@ st.write(f"## Dados do Ativo {selecao_ticker}")
 st.area_chart(df[selecao_ohlcv].astype(float))
 
 # 2.5 Visualização do DataFrame
-with st.container():
+with st.container(border=True):
     box1, box2 = st.columns([1,1])
 
     # DataFrame
@@ -125,4 +130,17 @@ with st.container():
     with box2:
         st.write(f"## Informaões dos Dados do {selecao_ticker}")
         st.write(df.describe())
-        st.write(df.info())
+    
+
+    
+    with st.container(border=True):
+        st.write("Deseja ver mais informações sobre o ativo?")
+        
+        botao1, botao2 = st.columns(2, border=True)
+        with botao1:
+            if st.button("Sim"):
+                st.write(yf.Ticker(selecao_ticker).info)
+                
+        with botao2:
+            if st.button("Não"):
+                st.write("Obrigado por usar o nosso Dashboard")
