@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pandas.tseries.offsets import BDay
 
 import xgboost as xgb
 from sklearn.multioutput import MultiOutputRegressor
@@ -17,16 +18,16 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 ticker = "AAPL"
 
 ativo = yf.Ticker(ticker).history(period="max", auto_adjust=False)
-ativo.index = pd.to_datetime(ativo.index.date)
+ativo.index = pd.to_datetime(ativo.index)
 
 #####TESTES DE NORMALIZAÇÃO E PADRONIZAÇÃO#####
 ativo_colunas = ativo.columns
+ativo_index = ativo.index
 
 ativo_normalizado = pd.DataFrame(MinMaxScaler().fit_transform(ativo), columns=ativo_colunas)
-ativo_padronizado = pd.DataFrame(StandardScaler().fit_transform(ativo), columns=ativo_colunas)
 
+ativo_normalizado.index = ativo_index.date
 ativo = ativo_normalizado
-# ativo = ativo_padronizado
 
 # Separando preditores e alvo
 # colunas_drop = ["Dividends", "Stock Splits"]
@@ -46,35 +47,43 @@ xgb_model = MultiOutputRegressor(xgb.XGBRegressor(n_estimators=1000, learning_ra
 xgb_model.fit(X_treino, Y_treino)
 
 
-# y_pred = xgb_model.predict(X_teste)
+y_pred = xgb_model.predict(X_teste)
+
+ultimo_dia = ativo.index[-1]  # Última data no índice
+proximo_dia_util = ultimo_dia + BDay(1)  # Adiciona 1 dia útil
+
+nova_linha = {
+    "Data": proximo_dia_util.date(),
+    "Open": 0.0,       # Valor inicial padrão
+    "High": 0.0,       # Valor inicial padrão
+    "Low": 0.0,        # Valor inicial padrão
+    "Close": 0.0,      # Valor inicial padrão
+    "Adj Close": 0.0,  # Valor inicial padrão
+    "Volume": 0.0,     # Valor inicial padrão
+    "Dividends": 0.0,  # Valor inicial padrão
+    "Stock Splits": 0.0,  # Valor inicial padrão
+}
+nova_linha = pd.DataFrame(nova_linha, index=[0])
+nova_linha.set_index("Data", inplace=True)
+
+
+# test_pred_array = xgb_model.predict(nova_linha)
+# test_pred = pd.DataFrame(test_pred_array, columns=ativo.columns, index=[proximo_dia_util.date()])
+
+test_pred = pd.DataFrame(xgb_model.predict(nova_linha), columns=ativo.columns, index=[proximo_dia_util.date()])
+
 
 # Previsões
-n_dias_previsao = 10
-ultima_data = ativo.index[-1]
-novas_datas = pd.date_range(start=ultima_data, periods=n_dias_previsao + 1, freq="B")[1:]
-
-ultimo_valor = preditor.iloc[-1].values.reshape(1, -1)
-y_pred = []
-
-for _ in range(n_dias_previsao):
-    proxima_previsao = xgb_model.predict(ultimo_valor)
-    y_pred.append(proxima_previsao[0])
-    ultimo_valor = np.roll(ultimo_valor, -1)
-    ultimo_valor = proxima_previsao[0, -1]
-
-previsao_df = pd.DataFrame({"Adj Close": y_pred.flatten()}, index=novas_datas)
-
-
-# previsão_df = pd.DataFrame(y_pred, columns=ativo.columns, index=Y_teste.index)
+previsao_df = pd.DataFrame(y_pred, columns=ativo.columns, index=Y_teste.index)
 
 # # Métricas
-# RMSE = np.sqrt(mean_squared_error(Y_teste, y_pred))
+RMSE = np.sqrt(mean_squared_error(Y_teste, y_pred))
 # print("XGBoost RMSE:", RMSE)
 
-# MAE = mean_absolute_error(Y_teste, y_pred)
+MAE = mean_absolute_error(Y_teste, y_pred)
 # print("XGBoost MAE:", MAE)
 
-# R2 = r2_score(Y_teste, y_pred)
+R2 = r2_score(Y_teste, y_pred)
 # print("XGBoost R2:", R2)
 
 # print(ativo.columns)
@@ -83,15 +92,23 @@ previsao_df = pd.DataFrame({"Adj Close": y_pred.flatten()}, index=novas_datas)
 # print(previsão_df.shape)
 
 # Gráfico
-# sns.lineplot(ativo.index, ativo["Adj Close"]+previsão_df.index, previsão_df["Adj Close"])
+st.area_chart(ativo["Adj Close"], color="#ffaa00")
+st.area_chart(previsao_df["Adj Close"], color="#ff0000")
 
-fig, ax = plt.subplots()
-ax = plt.plot(ativo.index, ativo["Adj Close"], label="Dados Reais", color="blue")
-ax = plt.plot(previsao_df.index, previsao_df["Adj Close"], label="Previsões", linestyle="--", color="red")
-plt.legend()
-# plt.show()
-st.pyplot(fig)
+st.write("## Teste Previsões")
 
+st.write(ativo_index.shape, Y_teste.shape, y_pred.shape)
+st.write(proximo_dia_util.date())
 
+st.write("## Dados para previssão")
+st.write(nova_linha)
+st.write("## Previsão")
+st.write(test_pred)
+
+st.write("## Métricas do Modelo")
+st.write(f"**RMSE:** {RMSE}")
+st.write(f"**MAE:** {MAE}")
+st.write(f"**R2:** {R2}")
+# :.2f
 st.write("## Dados Reais")
 st.write(ativo)
