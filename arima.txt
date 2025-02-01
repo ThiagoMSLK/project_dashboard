@@ -1,0 +1,1 @@
+pip install numpy scipy scikit-learn statsmodels joblib Cython pandas
