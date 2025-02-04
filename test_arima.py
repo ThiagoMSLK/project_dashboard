@@ -4,19 +4,27 @@ import datetime as dt
 
 # 1.2 Importação das bibliotecas externas
 import pandas as pd
+import numpy as np
 import yfinance as yf
 import streamlit as st
-#import matplotlib.pyplot as plt
-#import seaborn as sns
-#import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
 
 # 1.3 Importação das bibliotecas de Machine Learning
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
+# from sklearn.metrics import mean_squared_error
+
+# 1.4 Função para prever com ARIMA
+def prever_arima(serie, ordem=(5, 4, 1), dias_previsao=10):
+    modelo = ARIMA(serie, order=ordem)
+    modelo_ajustado = modelo.fit(start_params=[0.1] * (ordem[0] + ordem[1] + ordem[2]))
+    previsao = modelo_ajustado.forecast(steps=dias_previsao)
+    return previsao
 
 # 1.4 Difinição da Tuples OHLCV e do DataFrame Ticker
-OHLCV = ("Open", "High", "Low", "Close", "Adj Close", "Volume")
+OHLCV = ("Adj Close", "Open", "High", "Low", "Close", "Volume")
 
 ticker = pd.read_csv("nasdaq_screener_10-01-2025.csv")["Symbol"].values
 
@@ -24,6 +32,7 @@ ticker = pd.read_csv("nasdaq_screener_10-01-2025.csv")["Symbol"].values
 st.set_page_config(page_title="Análise de Dados Financeiros", layout="wide")
 
 st.title("Análise de Dados Financeiros")
+
 
 # 2.2 Difinição dos dados que o usuário deseja visualizar
 with st.container():
@@ -87,6 +96,9 @@ with st.container():
         end_date = pd.to_datetime(end_date)
         df = df.loc[start_date:end_date]
 
+st.write(f"## {yf.Ticker(selecao_ticker).info["shortName"]}")
+
+
 # 3.1 Metricas
 ult_atualizacao = df.index.max().date() # Data da última atualização
 
@@ -115,7 +127,7 @@ with st.container(border=True):
         st.metric("Menor cotação:",f"{moeda} {menor_cotacao}")
 
 # 3.3 Visualização dos dados
-st.write(f"## Dados do Ativo {selecao_ticker}")
+st.write(f"## Gráfico de Desenvolvimento do Ativo {selecao_ticker}")
 
 # 3.4 Visualização do gráfico
 with st.container(border=True):
@@ -127,20 +139,12 @@ scaler = MinMaxScaler()
 df_normalizado = scaler.fit_transform(df)
 df_normalizado = pd.DataFrame(df_normalizado, columns=df.columns, index=df.index)
 
-# 4.2 Previsão do ARIMA
-def prever_arima(serie, ordem=(6, 6, 1), dias_previsao=10):
-    modelo = ARIMA(serie, order=ordem)
-    modelo_ajustado = modelo.fit()
-    previsao = modelo_ajustado.forecast(steps=dias_previsao)
-    return previsao
-
-# Prever cada coluna
+# 4.2 Prever cada coluna
 st.sidebar.header("Previsão")
 
 dias_previsao = st.sidebar.number_input("Dias de Previsão", min_value=1, max_value=10, value=10)
 
 previsoes = {}
-
 
 for coluna in df_normalizado.columns:
     try:
@@ -148,39 +152,34 @@ for coluna in df_normalizado.columns:
     except Exception as e:
         print(f"Erro ao prever {coluna}: {e}")
 
-# Criar DataFrame com as previsões
+# 4.3 Criar DataFrame com as previsões
 if previsoes:
     previsoes_df = pd.DataFrame(previsoes)
     
 else:
     st.write("Nenhuma previsão foi gerada devido a erros.")
 
-# Desnormalizar as previsões
+# 4.4 Desnormalizar as previsões
 previsoes_desnormalizadas = scaler.inverse_transform(previsoes_df)
 
-# Converter de volta para DataFrame
+# 4.5 Converter de volta para DataFrame
 previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=df.columns, index=previsoes_df.index)
 
-st.write(previsoes_desnormalizadas[selecao_ohlcv])
+#st.write(previsoes_desnormalizadas[selecao_ohlcv])
+
+# 4.6 Visualização das previsões
+ultima_previsao = previsoes_desnormalizadas[selecao_ohlcv].tail(1).reset_index(drop=True)
+ultimo_real = df[selecao_ohlcv].tail(1).reset_index(drop=True)
+
+if ultima_previsao.iloc[0] > ultimo_real.iloc[0]:
+    st.write("O ativo tende a subir")
+else:
+    st.write("O ativo tende a descer")
 
 st.line_chart(previsoes_desnormalizadas[selecao_ohlcv].astype(float))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-#######TESTE######
-
-# 5.1 Visualização do DataFrame
+# 5.1 Informações do Ativo
 st.sidebar.header("Informações do Ativo")
 sim_nao = st.sidebar.radio("Deseja ver mais informações sobre o ativo?", ("Não", "Sim"))
     
@@ -206,7 +205,4 @@ with st.container(border=True):
     if sim_nao == "Não":
         st.write("Obrigado por usar o nosso Dashboard")
 
-
-#st.write(df.columns)
-
-#tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Todos Dados","Open", "High", "Low","Close","Adj Close","Volume"])
+# 6.1 Informações do Projeto
