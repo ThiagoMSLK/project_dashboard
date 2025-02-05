@@ -1,0 +1,1 @@
+streamlit run test_project.py
