@@ -7,21 +7,67 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 import streamlit as st
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# import plotly.express as px
 
 # 1.3 Importação das bibliotecas de Machine Learning
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.stattools import acf, pacf
 from sklearn.preprocessing import MinMaxScaler
 # from sklearn.metrics import mean_squared_error
 
-# 1.4 Função para prever com ARIMA
-def prever_arima(serie, ordem=(5, 4, 1), dias_previsao=10):
-    modelo = ARIMA(serie, order=ordem)
-    modelo_ajustado = modelo.fit(start_params=[0.1] * (ordem[0] + ordem[1] + ordem[2]))
-    previsao = modelo_ajustado.forecast(steps=dias_previsao)
-    return previsao
+class ARIMAForecaster:
+    def __init__(self, serie, max_d=3):
+        self.serie = serie
+        self.max_d = max_d
+        self.p = None
+        self.d = None
+        self.q = None
+    
+    def encontrar_d(self):
+        """Determina o número de diferenciações (d) necessárias para tornar a série estacionária."""
+        d = 0
+        adf_teste = adfuller(self.serie.dropna())
+        
+        while adf_teste[1] > 0.05 and d < self.max_d:  # Diferencia até ficar estacionária
+            d += 1
+            self.serie = self.serie.diff().dropna()
+            adf_teste = adfuller(self.serie)
+        
+        self.d = d
+        return d
+    
+    def encontrar_p_q(self):
+        """Determina os valores de p e q com base nos gráficos PACF e ACF."""
+        if self.d is None:
+            self.encontrar_d()
+        
+        serie_d = self.serie.copy()
+        for _ in range(self.d):
+            serie_d = serie_d.diff().dropna()
+        
+        pacf_vals = pacf(serie_d, nlags=10, method='ywunbiased')
+        acf_vals = acf(serie_d, nlags=10)
+        
+        self.p = np.argmax(np.abs(pacf_vals) < 0.2) or 1
+        self.q = np.argmax(np.abs(acf_vals) < 0.2) or 1
+        
+        return self.p, self.q
+    
+    def prever(self, dias_previsao=10):
+        """Treina o modelo ARIMA e faz previsões."""
+        if self.p is None or self.q is None or self.d is None:
+            self.encontrar_p_q()
+        
+        print(f"Usando ordem: ({self.p}, {self.d}, {self.q})")
+        
+        modelo = ARIMA(self.serie, order=(self.p, self.d, self.q))
+        modelo_ajustado = modelo.fit()
+        previsao = modelo_ajustado.forecast(steps=dias_previsao)
+        
+        return previsao
 
 # 1.4 Difinição da Tuples OHLCV e do DataFrame Ticker
 OHLCV = ("Adj Close", "Open", "High", "Low", "Close", "Volume")
@@ -79,7 +125,7 @@ with st.container():
         df.ffill(inplace=True)
 
         # 2.5.3 Procurando a moeda do ativo
-        moeda = yf.Ticker(selecao_ticker).info["currency"]
+        moeda = yf.Ticker(selecao_ticker).info['currency']
 
         # 2.5.3 Procurando o primeiro dia do ativo
         primeiro_dia = df.index[0].date()
@@ -96,19 +142,19 @@ with st.container():
         end_date = pd.to_datetime(end_date)
         df = df.loc[start_date:end_date]
 
-st.write(f"## {yf.Ticker(selecao_ticker).info["shortName"]}")
+st.write(f"## {yf.Ticker(selecao_ticker).info['shortName']}")
 
 
 # 3.1 Metricas
 ult_atualizacao = df.index.max().date() # Data da última atualização
 
-prim_cotacao = round(df.loc[df.index.min(), "Close"], 2).item() # Primeira cotação
+prim_cotacao = round(df.loc[df.index.min(), "Close"], 2) # Primeira cotação
 
-ult_cotacao = round(df.loc[df.index.max(), "Close"], 2).item() # Última cotação
+ult_cotacao = round(df.loc[df.index.max(), "Close"], 2) # Última cotação
 
-menor_cotacao = round(df["Close"].min(), 2).item() # Menor cotação
+menor_cotacao = round(df["Close"].min(), 2) # Menor cotação
 
-maior_cotacao = round(df["Close"].max(), 2).item() # Maior cotação
+maior_cotacao = round(df["Close"].max(), 2) # Maior cotação
 
 delta = round(((ult_cotacao - prim_cotacao)/prim_cotacao)*100, 2) # Variação percentual
 
@@ -136,8 +182,8 @@ with st.container(border=True):
 
 # 4.1 Normalizar os dados (Min-Max)
 scaler = MinMaxScaler()
-df_normalizado = scaler.fit_transform(df)
-df_normalizado = pd.DataFrame(df_normalizado, columns=df.columns, index=df.index)
+df_normalizado = scaler.fit_transform(df[[selecao_ohlcv]])
+df_normalizado = pd.DataFrame(df_normalizado, columns=[selecao_ohlcv], index=df.index)
 
 # 4.2 Prever cada coluna
 st.sidebar.header("Previsão")
@@ -146,35 +192,41 @@ dias_previsao = st.sidebar.number_input("Dias de Previsão", min_value=1, max_va
 
 previsoes = {}
 
-for coluna in df_normalizado.columns:
-    try:
-        previsoes[coluna] = prever_arima(df_normalizado[coluna], dias_previsao=dias_previsao)
-    except Exception as e:
-        print(f"Erro ao prever {coluna}: {e}")
+#for coluna in df_normalizado.columns:
+#    try:
+#        previsoes[coluna] = prever_arima(df_normalizado[coluna], dias_previsao=dias_previsao)
+#    except Exception as e:
+#        print(f"Erro ao prever {coluna}: {e}")
+
+try:
+    forecaster = ARIMAForecaster(df_normalizado[selecao_ohlcv])
+    previsoes[selecao_ohlcv] = forecaster.prever(dias_previsao=dias_previsao)
+except Exception as e:
+    st.error(f"Erro ao prever {selecao_ohlcv}: {e}")
 
 # 4.3 Criar DataFrame com as previsões
 if previsoes:
-    previsoes_df = pd.DataFrame(previsoes)
-    
+    previsoes_df = pd.DataFrame(previsoes, index=pd.date_range(start=df.index[-1], periods=dias_previsao+1, freq="B")[1:])
 else:
-    st.write("Nenhuma previsão foi gerada devido a erros.")
+    previsoes_df = None
+    st.warning("Nenhuma previsão foi gerada devido a erros.")
 
 # 4.4 Desnormalizar as previsões
-previsoes_desnormalizadas = scaler.inverse_transform(previsoes_df)
+if previsoes_df is not None:
+    previsoes_desnormalizadas = scaler.inverse_transform(previsoes_df)
+    previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=[selecao_ohlcv], index=previsoes_df.index)
+else:
+    previsoes_desnormalizadas = None
 
-# 4.5 Converter de volta para DataFrame
-previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=df.columns, index=previsoes_df.index)
-
-#st.write(previsoes_desnormalizadas[selecao_ohlcv])
 
 # 4.6 Visualização das previsões
 ultima_previsao = previsoes_desnormalizadas[selecao_ohlcv].tail(1).reset_index(drop=True)
 ultimo_real = df[selecao_ohlcv].tail(1).reset_index(drop=True)
 
 if ultima_previsao.iloc[0] > ultimo_real.iloc[0]:
-    st.write("O ativo tende a subir")
+    st.write("## O ativo tende a subir")
 else:
-    st.write("O ativo tende a descer")
+    st.write("## O ativo tende a descer")
 
 st.line_chart(previsoes_desnormalizadas[selecao_ohlcv].astype(float))
 
