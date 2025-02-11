@@ -17,7 +17,7 @@ from sklearn.preprocessing import MinMaxScaler
 # from sklearn.metrics import mean_squared_error
 
 # 1.4 Função para prever com ARIMA
-def prever_arima(serie, ordem=(5, 4, 1), dias_previsao=10):
+def prever_arima(serie, ordem=(5, 3, 1), dias_previsao=10):
     modelo = ARIMA(serie, order=ordem)
     modelo_ajustado = modelo.fit(start_params=[0.1] * (ordem[0] + ordem[1] + ordem[2]))
     previsao = modelo_ajustado.forecast(steps=dias_previsao)
@@ -79,7 +79,7 @@ with st.container():
         df.ffill(inplace=True)
 
         # 2.5.3 Procurando a moeda do ativo
-        moeda = yf.Ticker(selecao_ticker).info["currency"]
+        moeda = yf.Ticker(selecao_ticker).info['currency']
 
         # 2.5.3 Procurando o primeiro dia do ativo
         primeiro_dia = df.index[0].date()
@@ -96,19 +96,19 @@ with st.container():
         end_date = pd.to_datetime(end_date)
         df = df.loc[start_date:end_date]
 
-st.write(f"## {yf.Ticker(selecao_ticker).info["shortName"]}")
+st.write(f"## {yf.Ticker(selecao_ticker).info['shortName']}")
 
 
 # 3.1 Metricas
 ult_atualizacao = df.index.max().date() # Data da última atualização
 
-prim_cotacao = round(df.loc[df.index.min(), "Close"], 2).item() # Primeira cotação
+prim_cotacao = round(df.loc[df.index.min(), "Close"], 2) # Primeira cotação
 
-ult_cotacao = round(df.loc[df.index.max(), "Close"], 2).item() # Última cotação
+ult_cotacao = round(df.loc[df.index.max(), "Close"], 2) # Última cotação
 
-menor_cotacao = round(df["Close"].min(), 2).item() # Menor cotação
+menor_cotacao = round(df["Close"].min(), 2) # Menor cotação
 
-maior_cotacao = round(df["Close"].max(), 2).item() # Maior cotação
+maior_cotacao = round(df["Close"].max(), 2) # Maior cotação
 
 delta = round(((ult_cotacao - prim_cotacao)/prim_cotacao)*100, 2) # Variação percentual
 
@@ -136,8 +136,8 @@ with st.container(border=True):
 
 # 4.1 Normalizar os dados (Min-Max)
 scaler = MinMaxScaler()
-df_normalizado = scaler.fit_transform(df)
-df_normalizado = pd.DataFrame(df_normalizado, columns=df.columns, index=df.index)
+df_normalizado = scaler.fit_transform(df[[selecao_ohlcv]])
+df_normalizado = pd.DataFrame(df_normalizado, columns=[selecao_ohlcv], index=df.index)
 
 # 4.2 Prever cada coluna
 st.sidebar.header("Previsão")
@@ -146,11 +146,16 @@ dias_previsao = st.sidebar.number_input("Dias de Previsão", min_value=1, max_va
 
 previsoes = {}
 
-for coluna in df_normalizado.columns:
-    try:
-        previsoes[coluna] = prever_arima(df_normalizado[coluna], dias_previsao=dias_previsao)
-    except Exception as e:
-        print(f"Erro ao prever {coluna}: {e}")
+#for coluna in df_normalizado.columns:
+#    try:
+#        previsoes[coluna] = prever_arima(df_normalizado[coluna], dias_previsao=dias_previsao)
+#    except Exception as e:
+#        print(f"Erro ao prever {coluna}: {e}")
+
+try:
+    previsoes[selecao_ohlcv] = prever_arima(df_normalizado[selecao_ohlcv], dias_previsao=dias_previsao)
+except Exception as e:
+    print(f"Erro ao prever {selecao_ohlcv}: {e}")
 
 # 4.3 Criar DataFrame com as previsões
 if previsoes:
@@ -163,7 +168,7 @@ else:
 previsoes_desnormalizadas = scaler.inverse_transform(previsoes_df)
 
 # 4.5 Converter de volta para DataFrame
-previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=df.columns, index=previsoes_df.index)
+previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=[selecao_ohlcv], index=previsoes_df.index)
 
 #st.write(previsoes_desnormalizadas[selecao_ohlcv])
 
