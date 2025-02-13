@@ -13,61 +13,15 @@ import streamlit as st
 
 # 1.3 Importação das bibliotecas de Machine Learning
 from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.stattools import adfuller
-from statsmodels.tsa.stattools import acf, pacf
 from sklearn.preprocessing import MinMaxScaler
 # from sklearn.metrics import mean_squared_error
 
-class ARIMAForecaster:
-    def __init__(self, serie, max_d=3):
-        self.serie = serie
-        self.max_d = max_d
-        self.p = None
-        self.d = None
-        self.q = None
-    
-    def encontrar_d(self):
-        """Determina o número de diferenciações (d) necessárias para tornar a série estacionária."""
-        d = 0
-        adf_teste = adfuller(self.serie.dropna())
-        
-        while adf_teste[1] > 0.05 and d < self.max_d:  # Diferencia até ficar estacionária
-            d += 1
-            self.serie = self.serie.diff().dropna()
-            adf_teste = adfuller(self.serie)
-        
-        self.d = d
-        return d
-    
-    def encontrar_p_q(self):
-        """Determina os valores de p e q com base nos gráficos PACF e ACF."""
-        if self.d is None:
-            self.encontrar_d()
-        
-        serie_d = self.serie.copy()
-        for _ in range(self.d):
-            serie_d = serie_d.diff().dropna()
-        
-        pacf_vals = pacf(serie_d, nlags=10, method='ywunbiased')
-        acf_vals = acf(serie_d, nlags=10)
-        
-        self.p = np.argmax(np.abs(pacf_vals) < 0.2) or 1
-        self.q = np.argmax(np.abs(acf_vals) < 0.2) or 1
-        
-        return self.p, self.q
-    
-    def prever(self, dias_previsao=10):
-        """Treina o modelo ARIMA e faz previsões."""
-        if self.p is None or self.q is None or self.d is None:
-            self.encontrar_p_q()
-        
-        print(f"Usando ordem: ({self.p}, {self.d}, {self.q})")
-        
-        modelo = ARIMA(self.serie, order=(self.p, self.d, self.q))
-        modelo_ajustado = modelo.fit()
-        previsao = modelo_ajustado.forecast(steps=dias_previsao)
-        
-        return previsao
+# 1.4 Função para prever com ARIMA
+def prever_arima(serie, ordem=(4, 4, 1), dias_previsao=10):
+    modelo = ARIMA(serie, order=ordem)
+    modelo_ajustado = modelo.fit(start_params=[0.1] * (ordem[0] + ordem[1] + ordem[2]))
+    previsao = modelo_ajustado.forecast(steps=dias_previsao)
+    return previsao
 
 # 1.4 Difinição da Tuples OHLCV e do DataFrame Ticker
 OHLCV = ("Adj Close", "Open", "High", "Low", "Close", "Volume")
@@ -188,7 +142,7 @@ df_normalizado = pd.DataFrame(df_normalizado, columns=[selecao_ohlcv], index=df.
 # 4.2 Prever cada coluna
 st.sidebar.header("Previsão")
 
-dias_previsao = st.sidebar.number_input("Dias de Previsão", min_value=1, max_value=10, value=10)
+dias_previsao = st.sidebar.number_input("Dias de Previsão", min_value=1, max_value=100, value=10)
 
 previsoes = {}
 
@@ -199,34 +153,33 @@ previsoes = {}
 #        print(f"Erro ao prever {coluna}: {e}")
 
 try:
-    forecaster = ARIMAForecaster(df_normalizado[selecao_ohlcv])
-    previsoes[selecao_ohlcv] = forecaster.prever(dias_previsao=dias_previsao)
+    previsoes[selecao_ohlcv] = prever_arima(df_normalizado[selecao_ohlcv], dias_previsao=dias_previsao)
 except Exception as e:
-    st.error(f"Erro ao prever {selecao_ohlcv}: {e}")
+    print(f"Erro ao prever {selecao_ohlcv}: {e}")
 
 # 4.3 Criar DataFrame com as previsões
 if previsoes:
-    previsoes_df = pd.DataFrame(previsoes, index=pd.date_range(start=df.index[-1], periods=dias_previsao+1, freq="B")[1:])
+    previsoes_df = pd.DataFrame(previsoes)
+    
 else:
-    previsoes_df = None
-    st.warning("Nenhuma previsão foi gerada devido a erros.")
+    st.write("Nenhuma previsão foi gerada devido a erros.")
 
 # 4.4 Desnormalizar as previsões
-if previsoes_df is not None:
-    previsoes_desnormalizadas = scaler.inverse_transform(previsoes_df)
-    previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=[selecao_ohlcv], index=previsoes_df.index)
-else:
-    previsoes_desnormalizadas = None
+previsoes_desnormalizadas = scaler.inverse_transform(previsoes_df)
 
+# 4.5 Converter de volta para DataFrame
+previsoes_desnormalizadas = pd.DataFrame(previsoes_desnormalizadas, columns=[selecao_ohlcv], index=previsoes_df.index)
+
+#st.write(previsoes_desnormalizadas[selecao_ohlcv])
 
 # 4.6 Visualização das previsões
 ultima_previsao = previsoes_desnormalizadas[selecao_ohlcv].tail(1).reset_index(drop=True)
 ultimo_real = df[selecao_ohlcv].tail(1).reset_index(drop=True)
 
 if ultima_previsao.iloc[0] > ultimo_real.iloc[0]:
-    st.write("## O ativo tende a subir")
+    st.write(f"## O ativo tende a subir: {ultima_previsao - ultimo_real}")
 else:
-    st.write("## O ativo tende a descer")
+    st.write(f"## O ativo tende a descer: {ultima_previsao - ultimo_real}")
 
 st.line_chart(previsoes_desnormalizadas[selecao_ohlcv].astype(float))
 
