@@ -1,5 +1,7 @@
 # Projeto Dashbaord com Streamlit
 
+> 🚧 **Status do Projeto:** Em desenvolvimento
+
 📈 Financial Dashboard com Previsão de 10 Dias  
 🇧🇷 Versão em Português  
 📊 Descrição do Projeto  
@@ -40,18 +42,18 @@ Python 3.10+
 
 Clone o repositório:
 
-´git clone https://github.com/seuusuario/project_dashboard.git´  
-'cd project_dashboard'  
+`git clone https://github.com/seuusuario/project_dashboard.git`  
+`cd project_dashboard`  
 
 
 Instale as dependências:
 
-- 'pip install pandas'
-- 'pip install numpy'
-- 'pip install yfinance'
-- 'pip install streamlit'
-- 'pip install streamlit'
-- 'pip install scikit-learn'
+- `pip install pandas`
+- `pip install numpy`
+- `pip install yfinance`
+- `pip install streamlit`
+- `pip install streamlit`
+- `pip install scikit-learn`
 
 
 
@@ -70,8 +72,6 @@ Ferramenta útil para explorar padrões e tendências de mercado.
 💡 Próximos Passos
 
 Implementar outros modelos preditivos (ARIMA, XGBoost, LSTM).
-
-Adicionar métricas de avaliação (RMSE, MAE, R²).
 
 Criar comparativos entre previsões e valores reais.
 
