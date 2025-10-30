@@ -77,7 +77,11 @@ Thiago Martins LK
 🔗 [LinkedIn](www.linkedin.com/in/thiagomartinslk)
 🔗 [Kaggle](https://www.kaggle.com/thiagomartinslk)
 🔗 [GitHub](https://github.com/ThiagoMSLK/ThiagoMSLK/blob/main/README.md)
-<a href="www.linkedin.com/in/thiagomartinslk" target="_blank">Meu LinkedIn</a>
+<a href="https://www.linkedin.com/in/thiagomartinslk" target="_blank">Meu LinkedIn</a>
+
+
+
+
 
 🌍 English Version
 📈 Financial Dashboard with 10-Day Forecast
