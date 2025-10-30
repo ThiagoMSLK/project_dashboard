@@ -40,7 +40,7 @@ Python 3.10+
 
 Clone o repositório:
 
-'git clone https://github.com/seuusuario/project_dashboard.git'  
+´git clone https://github.com/seuusuario/project_dashboard.git´  
 'cd project_dashboard'  
 
 
