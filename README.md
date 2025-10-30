@@ -1,4 +1,5 @@
-# Projeto Dashbaord com Streamlit
+# Dashboard de Previsão de Ativos Financeiros
+## Com ativos do YFinance e visualização com Streamlit 
 
 > 🚧 **Status do Projeto:** Em desenvolvimento
 
