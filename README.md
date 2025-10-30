@@ -1,15 +1,15 @@
-# project_dashboard
+# Projeto Dashbaord com Streamlit
 
-📈 Financial Dashboard com Previsão de 10 Dias
-🇧🇷 Versão em Português
-📊 Descrição do Projeto
+📈 Financial Dashboard com Previsão de 10 Dias  
+🇧🇷 Versão em Português  
+📊 Descrição do Projeto  
 
 Este projeto apresenta uma dashboard interativa desenvolvida em Python e Streamlit, que consome dados diretamente da API do Yahoo Finance (YFinance) para analisar e prever preços de ativos financeiros.
 
 O sistema permite selecionar qualquer ativo disponível na bolsa (ex: PETR4.SA, AAPL, BTC-USD), visualizar seus dados históricos OHLCV (Open, High, Low, Close, Volume) e gerar previsões para os próximos 10 dias utilizando Regressão Linear.
 
-O objetivo é demonstrar o uso integrado de ciência de dados, machine learning e visualização interativa no contexto de finanças.
-
+O objetivo é demonstrar o uso integrado de ciência de dados, machine learning e visualização interativa no contexto de finanças.  
+  
 🧠 Principais Recursos
 
 Coleta automática de dados de ativos via API YFinance
