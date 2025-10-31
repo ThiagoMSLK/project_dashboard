@@ -83,5 +83,5 @@ Publicar versão online com Streamlit Cloud.
 Thiago Martins LK
 - <a href="https://www.linkedin.com/in/thiagomartinslk" target="_blank">Meu LinkedIn</a>
 - <a href="https://www.kaggle.com/thiagomartinslk" target="_blank">Meu Kaggle</a>
-- <a href="https://github.com/ThiagoMSLK/ThiagoMSLK/blob/main/README.md" target="_blank">Meu GitHub</a>
+- <a href="https://github.com/ThiagoMSLK" target="_blank">Meu GitHub</a>
 
