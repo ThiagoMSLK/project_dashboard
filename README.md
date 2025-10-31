@@ -43,8 +43,8 @@ Python 3.10+
 
 Clone o repositório:
 
-`git clone https://github.com/seuusuario/project_dashboard.git`  
-`cd project_dashboard`  
+- `git clone https://github.com/seuusuario/project_dashboard.git`  
+- `cd project_dashboard`  
 
 
 Instale as dependências:
@@ -60,28 +60,25 @@ Instale as dependências:
 
 Execute o projeto no Streamlit:
 
-streamlit run project_dashboard.py
+- `streamlit run project_dashboard.py`
 
 ### 📉 Resultados Esperados
 
-Visualização clara das variações de preço histórico.
+- Visualização clara das variações de preço histórico.
 
-Projeções automáticas de preços para os próximos 10 dias.
+- Projeções automáticas de preços para os próximos 10 dias.
 
-Ferramenta útil para explorar padrões e tendências de mercado.
+- Ferramenta útil para explorar padrões e tendências de mercado.
 
 ### 💡 Próximos Passos
 
-Implementar outros modelos preditivos (ARIMA, XGBoost, LSTM).
+- Implementar outros modelos preditivos (ARIMA, XGBoost, LSTM).
 
-Criar comparativos entre previsões e valores reais.
+- Criar comparativos entre previsões e valores reais.
 
-Publicar versão online com Streamlit Cloud.
+- Publicar versão online com Streamlit Cloud.
 
-### 💼 Autor
-
-Thiago Martins LK
+### 💼 Autor: Thiago Martins LK
 - <a href="https://www.linkedin.com/in/thiagomartinslk" target="_blank">Meu LinkedIn</a>
 - <a href="https://www.kaggle.com/thiagomartinslk" target="_blank">Meu Kaggle</a>
 - <a href="https://github.com/ThiagoMSLK" target="_blank">Meu GitHub</a>
-
