@@ -4,8 +4,8 @@
 > 🚧 **Status do Projeto:** Em desenvolvimento
 
 📈 Financial Dashboard com Previsão de 10 Dias  
-🇧🇷 Versão em Português  
-📊 Descrição do Projeto  
+
+### 📊 Descrição do Projeto  
 
 Este projeto apresenta uma dashboard interativa desenvolvida em Python e Streamlit, que consome dados diretamente da API do Yahoo Finance (YFinance) para analisar e prever preços de ativos financeiros.
 
@@ -13,7 +13,7 @@ O sistema permite selecionar qualquer ativo disponível na bolsa (ex: PETR4.SA, 
 
 O objetivo é demonstrar o uso integrado de ciência de dados, machine learning e visualização interativa no contexto de finanças.  
   
-🧠 Principais Recursos
+### 🧠 Principais Recursos
 
 - Coleta automática de dados de ativos via API YFinance
 
@@ -25,7 +25,7 @@ O objetivo é demonstrar o uso integrado de ciência de dados, machine learning 
 
 - Pipeline de análise totalmente automatizado
 
-⚙️ Tecnologias Utilizadas
+### ⚙️ Tecnologias Utilizadas
 
 Python 3.10+
 
@@ -39,7 +39,7 @@ Python 3.10+
 
 - Matplotlib / Plotly → geração dos gráficos
 
-🚀 Como Executar o Projeto
+### 🚀 Como Executar o Projeto
 
 Clone o repositório:
 
@@ -62,7 +62,7 @@ Execute o projeto no Streamlit:
 
 streamlit run project_dashboard.py
 
-📉 Resultados Esperados
+### 📉 Resultados Esperados
 
 Visualização clara das variações de preço histórico.
 
@@ -70,7 +70,7 @@ Projeções automáticas de preços para os próximos 10 dias.
 
 Ferramenta útil para explorar padrões e tendências de mercado.
 
-💡 Próximos Passos
+### 💡 Próximos Passos
 
 Implementar outros modelos preditivos (ARIMA, XGBoost, LSTM).
 
@@ -78,7 +78,7 @@ Criar comparativos entre previsões e valores reais.
 
 Publicar versão online com Streamlit Cloud.
 
-💼 Autor
+### 💼 Autor
 
 Thiago Martins LK
 - <a href="https://www.linkedin.com/in/thiagomartinslk" target="_blank">Meu LinkedIn</a>
