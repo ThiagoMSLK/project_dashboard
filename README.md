@@ -49,13 +49,7 @@ Clone o repositório:
 
 Instale as dependências:
 
-- `pip install pandas`
-- `pip install numpy`
-- `pip install yfinance`
-- `pip install streamlit`
-- `pip install streamlit`
-- `pip install scikit-learn`
-
+- `pip install pandas numpy yfinance streamlit scikit-learn`
 
 
 Execute o projeto no Streamlit:
